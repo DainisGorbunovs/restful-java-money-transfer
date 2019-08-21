@@ -20,6 +20,8 @@ Compile and run tests:
 ```bash
 mvn compile
 mvn test
+mvn package
+java -jar target/money-transfers-1.0-SNAPSHOT-jar-with-dependencies.jar
 ```
 
 ## API

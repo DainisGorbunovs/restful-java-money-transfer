@@ -1,3 +1,5 @@
+package MoneyMove;
+
 import lombok.Data;
 import spark.Request;
 import spark.Response;
