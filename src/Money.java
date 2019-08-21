@@ -11,13 +11,14 @@ public class Money {
     private final Currency currency;
 
     public enum Currency {
+        BTC,
         GBP,
         EUR,
         USD
     }
 
-    public Money(String amount) {
-        this(new BigDecimal(amount).setScale(currencyPrecision, roundmode), Currency.GBP);
+    public Money(String amount, String currency) {
+        this(new BigDecimal(amount).setScale(currencyPrecision, roundmode), Currency.valueOf(currency));
     }
 
     public Money(String amount, Currency currency) {
