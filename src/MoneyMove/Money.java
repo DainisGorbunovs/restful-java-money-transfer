@@ -8,7 +8,7 @@ import java.math.RoundingMode;
 @Data
 public class Money {
     public static int currencyPrecision = 12;
-    public static RoundingMode roundmode = RoundingMode.HALF_UP;
+    public static RoundingMode roundingMode = RoundingMode.HALF_UP;
     private BigDecimal amount;
     private final Currency currency;
 
@@ -20,11 +20,11 @@ public class Money {
     }
 
     public Money(String amount, String currency) {
-        this(new BigDecimal(amount).setScale(currencyPrecision, roundmode), Currency.valueOf(currency));
+        this(new BigDecimal(amount).setScale(currencyPrecision, roundingMode), Currency.valueOf(currency));
     }
 
     public Money(String amount, Currency currency) {
-        this(new BigDecimal(amount).setScale(currencyPrecision, roundmode), currency);
+        this(new BigDecimal(amount).setScale(currencyPrecision, roundingMode), currency);
     }
 
     public Money(BigDecimal amount, Currency currency) {
@@ -32,7 +32,21 @@ public class Money {
         this.currency = currency;
     }
 
-    public boolean add(Money money) {
+    public Money(BigDecimal amount, String currency) {
+        this.amount = amount;
+        this.currency = Currency.valueOf(currency);
+    }
+
+    public Money(Currency currency) {
+        this.amount = BigDecimal.ZERO;
+        this.currency = currency;
+    }
+
+    public Money(String currency) {
+        this(Currency.valueOf(currency));
+    }
+
+    boolean add(Money money) {
         if (this.getCurrency() != money.getCurrency())
             return false;
 
@@ -40,7 +54,7 @@ public class Money {
         return true;
     }
 
-    public boolean subtract(Money money) {
+    boolean subtract(Money money) {
         if (this.getCurrency() != money.getCurrency())
             return false;
 
@@ -49,7 +63,7 @@ public class Money {
         return true;
     }
 
-    public int compareTo(Money money) throws Exception {
+    int compareTo(Money money) throws Exception {
         if (this.getCurrency() != money.getCurrency())
             throw new Exception("Unable to compare different currencies.");
 

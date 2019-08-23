@@ -7,20 +7,25 @@ import static spark.Spark.*;
 
 public class Server {
     public static void main(String[] args) {
-        BasicConfigurator.configure();
-        port(3000);
+        new Server().establishRoutes();
+    }
 
+    void establishRoutes() {
+        BasicConfigurator.configure();
         Gson gson = new Gson();
         Accounts accounts = new Accounts();
+        port(3000);
 
         get("/accounts", (req, res) -> accounts, gson::toJson);
         get("/account/:guid", accounts::getAccount, gson::toJson);
         get("/create-account/:amount/:currency", (req, res) -> Account.createAccount(req, res, accounts), gson::toJson);
-        get("/transfer/:from/:to/:amount", (req, res) -> MoneyTransfer.transfer(req, res, accounts));
+        get("/create-account/:currency", (req, res) -> Account.createAccount(req, res, accounts), gson::toJson);
+        get("/transfer/:from/:to/:amount", (req, res) -> MoneyTransfer.transfer(req, res, accounts), gson::toJson);
 
         notFound((req, res) -> {
             res.type("application/json");
             return "{\"status\":404,\"message\":\"Page not found.\"}";
         });
     }
+
 }

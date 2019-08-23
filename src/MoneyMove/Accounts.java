@@ -1,10 +1,12 @@
 package MoneyMove;
 
+import lombok.Data;
 import spark.Request;
 import spark.Response;
 
 import java.util.HashMap;
 
+@Data
 public class Accounts {
     private HashMap<String, Account> accounts;
 
@@ -12,7 +14,7 @@ public class Accounts {
         accounts = new HashMap<>();
     }
 
-    public boolean addAccount(Account account) {
+    boolean addAccount(Account account) {
         String guid = account.getGuid().toString();
         if (accounts.containsKey(guid))
             return false;
@@ -21,14 +23,18 @@ public class Accounts {
         return true;
     }
 
-    public Account getAccount(String guid) {
+    Account getAccount(String guid) {
         if (accounts.containsKey(guid))
             return accounts.get(guid);
         return null;
     }
 
-    public Account getAccount(Request req, Response res) {
+    Account getAccount(Request req, Response res) {
         String guid = req.params(":guid");
         return getAccount(guid);
+    }
+
+    int getCount() {
+        return this.accounts.size();
     }
 }

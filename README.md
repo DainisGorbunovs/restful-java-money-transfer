@@ -1,4 +1,4 @@
-# Revolut: money transfers
+# RESTful Java: Money Transfers
 
 RESTful API for money transfers.
 
@@ -6,6 +6,7 @@ HTTP paths (`localhost:3000/`):
 * `/accounts` - creates currency accounts
 * `/account/:guid` - shows info about account 
 * `/create-account/:amount/:currency` - creates an account with a specific currency
+* `/create-account/:currency` - creates an account with a specific currency
 * `/transfer/:from/:to/:amount` - transfers money between accounts 
 
 Uses framework [`Spark`](http://sparkjava.com/documentation) for receiving and making HTTP requests. Uses [`Gson`](https://github.com/google/gson) for serialising Java objects into JSON.
@@ -27,6 +28,7 @@ java -jar target/money-transfers-1.0-SNAPSHOT-jar-with-dependencies.jar
 ## API
 The API is hypothetically invoked by internal services and is inaccessible by users.
  
+Assumption that money can be combined even if negative, e.g. combine debts.
 
 ## Money units
 There are currencies with more than 2 decimal places.

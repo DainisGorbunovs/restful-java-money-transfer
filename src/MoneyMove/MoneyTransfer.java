@@ -1,28 +1,32 @@
 package MoneyMove;
 
+import lombok.Data;
 import spark.Request;
 import spark.Response;
 
+@Data
 public class MoneyTransfer {
-    public MoneyTransfer() {
+    private final boolean transferSuccessful;
 
+    private MoneyTransfer(boolean success) {
+        this.transferSuccessful = success;
     }
 
-    public static boolean transfer(Account a, Account b, String amount) {
+    static boolean transfer(Account a, Account b, String amount) {
         // if currency is omitted, it is read from first account
         // if second account has a different currency, it is caught in next transfer()
         return transfer(a, b, new Money(amount, a.getCurrency()));
     }
 
-    public static boolean transfer(Account a, Account b, String amount, String currency) {
+    static boolean transfer(Account a, Account b, String amount, String currency) {
         return transfer(a, b, new Money(amount, currency));
     }
 
-    public static boolean transfer(Account a, Account b, String amount, Money.Currency currency) {
+    static boolean transfer(Account a, Account b, String amount, Money.Currency currency) {
         return transfer(a, b, new Money(amount, currency));
     }
 
-    public static boolean transfer(Account a, Account b, Money amount) {
+    static boolean transfer(Account a, Account b, Money amount) {
         // if the accounts are not found
         if (a == null || b == null)
             return false;
@@ -39,13 +43,16 @@ public class MoneyTransfer {
     }
 
 
-    public static boolean transfer(Request req, Response res, Accounts accounts) {
+    static MoneyTransfer transfer(Request req, Response res, Accounts accounts) {
         String from = req.params(":from");
         String to = req.params(":to");
         String amount = req.params(":amount");
 
         Account fromAccount = accounts.getAccount(from);
         Account toAccount = accounts.getAccount(to);
-        return transfer(fromAccount, toAccount, amount);
+        
+        boolean status = transfer(fromAccount, toAccount, amount);
+        
+        return new MoneyTransfer(status);
     }
 }
