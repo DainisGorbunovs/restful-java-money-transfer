@@ -1,4 +1,5 @@
 # RESTful Java: Money Transfers
+[![Build Status](https://travis-ci.org/DainisGorbunovs/restful-java-money-transfer.png?branch=master)](https://travis-ci.org/DainisGorbunovs/restful-java-money-transfer)
 
 RESTful API for money transfers.
 
