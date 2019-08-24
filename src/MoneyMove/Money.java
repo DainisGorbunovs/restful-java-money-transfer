@@ -9,15 +9,8 @@ import java.math.RoundingMode;
 public class Money {
     public static int currencyPrecision = 12;
     public static RoundingMode roundingMode = RoundingMode.HALF_UP;
-    private BigDecimal amount;
     private final Currency currency;
-
-    public enum Currency {
-        BTC,
-        GBP,
-        EUR,
-        USD
-    }
+    private BigDecimal amount;
 
     public Money(String amount, String currency) {
         this(new BigDecimal(amount).setScale(currencyPrecision, roundingMode), Currency.valueOf(currency));
@@ -68,5 +61,12 @@ public class Money {
             throw new Exception("Unable to compare different currencies.");
 
         return this.getAmount().compareTo(money.getAmount());
+    }
+
+    public enum Currency {
+        BTC,
+        GBP,
+        EUR,
+        USD
     }
 }

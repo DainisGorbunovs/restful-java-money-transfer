@@ -3,15 +3,11 @@ package MoneyMove;
 import org.junit.Assert;
 import org.junit.Test;
 import spark.Request;
-import spark.Response;
 
 import java.math.BigDecimal;
 
 import static MoneyMove.Money.currencyPrecision;
 import static MoneyMove.Money.roundingMode;
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
-
 
 public class AccountTest {
     public BigDecimal getDecimal(String amount) {
@@ -40,15 +36,33 @@ public class AccountTest {
 
     @Test
     public void createAccount() {
-        // TODO Request is a protected class, avoid mocking it (and Response)
-        Request request = mock(Request.class);
-        Response response = mock(Response.class);
-        when(request.params(":amount")).thenReturn("12.023282");
-        when(request.params(":currency")).thenReturn("BTC");
+        Request request = new Request() {
+            @Override
+            public String params(String a) {
+                if (a.equals(":amount"))
+                    return "12.023282";
+                return "BTC";
+            }
+        };
         Accounts accounts = new Accounts();
 
-        Account account = Account.createAccount(request, response, accounts);
+        Account account = Account.createAccount(request, null, accounts);
         Assert.assertEquals(getDecimal("12.023282"), account.getBalance().getAmount());
+
+        Accounts accounts2 = new Accounts() {
+            private boolean answer = false;
+
+            @Override
+            boolean addAccount(Account account) {
+                if (answer)
+                    return true;
+                this.answer = true;
+                return false;
+            }
+        };
+
+        Account other = Account.createAccount(request, null, accounts2);
+        Assert.assertNotEquals(account.getGuid(), other.getGuid());
     }
 
     @Test

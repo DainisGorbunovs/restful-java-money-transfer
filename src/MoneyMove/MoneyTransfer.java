@@ -35,10 +35,8 @@ public class MoneyTransfer {
         if (a.getCurrency() != b.getCurrency() || a.getCurrency() != amount.getCurrency())
             return false;
 
-        // proceed only if removed money from A
-        if (!a.subtract(amount))
-            return false;
-
+        // the currencies are matched, thus can make the transfer
+        a.subtract(amount);
         return b.add(amount);
     }
 
@@ -50,9 +48,9 @@ public class MoneyTransfer {
 
         Account fromAccount = accounts.getAccount(from);
         Account toAccount = accounts.getAccount(to);
-        
+
         boolean status = transfer(fromAccount, toAccount, amount);
-        
+
         return new MoneyTransfer(status);
     }
 }

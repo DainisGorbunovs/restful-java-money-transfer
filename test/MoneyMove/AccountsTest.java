@@ -3,10 +3,6 @@ package MoneyMove;
 import org.junit.Assert;
 import org.junit.Test;
 import spark.Request;
-import spark.Response;
-
-import static org.powermock.api.mockito.PowerMockito.mock;
-import static org.powermock.api.mockito.PowerMockito.when;
 
 public class AccountsTest {
     @Test
@@ -23,6 +19,7 @@ public class AccountsTest {
         Account thirdAccount = new Account("BTC");
         Assert.assertTrue(accounts.addAccount(thirdAccount));
         Assert.assertEquals(2, accounts.getCount());
+        Assert.assertEquals(2, accounts.getAccounts().size());
     }
 
     @Test
@@ -34,6 +31,8 @@ public class AccountsTest {
         Account foundAccount = accounts.getAccount(firstAccount.getGuid().toString());
         Assert.assertEquals(firstAccount.getBalance(), foundAccount.getBalance());
         Assert.assertEquals(firstAccount.getGuid(), foundAccount.getGuid());
+
+        Assert.assertNull(accounts.getAccount(null));
     }
 
     @Test
@@ -42,12 +41,14 @@ public class AccountsTest {
         Account firstAccount = new Account("GBP");
         accounts.addAccount(firstAccount);
 
-        // TODO Request is a protected class, avoid mocking it (and Response)
-        Request request = mock(Request.class);
-        Response response = mock(Response.class);
-        when(request.params(":guid")).thenReturn(firstAccount.getGuid().toString());
+        Request request = new Request() {
+            @Override
+            public String params(String a) {
+                return firstAccount.getGuid().toString();
+            }
+        };
 
-        Account foundAccount = accounts.getAccount(request, response);
+        Account foundAccount = accounts.getAccount(request, null);
         Assert.assertEquals(firstAccount.getBalance(), foundAccount.getBalance());
         Assert.assertEquals(firstAccount.getGuid(), foundAccount.getGuid());
     }

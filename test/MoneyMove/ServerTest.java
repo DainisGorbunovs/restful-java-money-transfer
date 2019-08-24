@@ -2,7 +2,10 @@ package MoneyMove;
 
 import com.google.gson.Gson;
 import lombok.Data;
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import spark.utils.IOUtils;
 
 import java.io.IOException;
@@ -58,6 +61,7 @@ public class ServerTest {
     @Test
     public void testNotFound() {
         StatusMessage<String> msg = makeRequest("/nonexistent", String.class, true);
+        assert msg != null;
         Assert.assertEquals(404, msg.getStatus());
     }
 

@@ -60,11 +60,8 @@ public class Account {
     }
 
     boolean subtract(Money amount) {
-        try {
-            if (balance.getCurrency() == amount.getCurrency()) {
-                return balance.subtract(amount);
-            }
-        } catch (Exception ignored) {
+        if (balance.getCurrency() == amount.getCurrency()) {
+            return balance.subtract(amount);
         }
         return false;
     }
