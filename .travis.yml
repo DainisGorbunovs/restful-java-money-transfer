@@ -1,3 +1,6 @@
 language: java
 jdk:
   - openjdk12
+after_success:
+  - export CODECOV_TOKEN="c94e5117-1e3b-4f91-8c29-c211c0031b53"
+  - bash <(curl -s https://codecov.io/bash)

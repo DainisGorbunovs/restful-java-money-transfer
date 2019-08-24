@@ -1,10 +1,8 @@
 package MoneyMove;
 
 import com.google.gson.Gson;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import lombok.Data;
+import org.junit.*;
 import spark.utils.IOUtils;
 
 import java.io.IOException;
@@ -15,49 +13,87 @@ import static spark.Spark.awaitInitialization;
 import static spark.Spark.stop;
 
 public class ServerTest {
-    @Before
-    public void setUp() throws Exception {
-        Server newRoutes = new Server();
-        newRoutes.establishRoutes();
+    @BeforeClass
+    public static void setUp() {
+        Server.main(new String[]{});
 
         awaitInitialization();
     }
 
-    @After
-    public void tearDown() throws Exception {
+    @AfterClass
+    public static void tearDown() {
         stop();
     }
 
     @Test
     public void testRoutes() {
-        Account emptyAccount = makeRequest("/create-account/EUR", Account.class);
-        Account donator = makeRequest("/create-account/4.16/EUR", Account.class);
+        StatusMessage<Account> emptyAccountMessage = makeRequest("/create-account/EUR", Account.class);
+        Account emptyAccount = emptyAccountMessage.getMessage();
+        StatusMessage<Account> donatorMessage = makeRequest("/create-account/4.16/EUR", Account.class);
+        Account donator = donatorMessage.getMessage();
 
-        Accounts accounts = makeRequest("/accounts", Accounts.class);
-        Assert.assertNotNull(accounts.getAccount(donator.getGuid().toString()));
+        StatusMessage<Accounts> accountsMessage = makeRequest("/accounts", Accounts.class);
+        Accounts accounts = accountsMessage.getMessage();
 
-        MoneyTransfer mt = makeRequest(String.format("/transfer/%s/%s/2.17",
+        Assert.assertNotNull(accounts.getAccount(
+                donator.getGuid().toString()
+        ));
+
+        StatusMessage<MoneyTransfer> mt = makeRequest(String.format("/transfer/%s/%s/2.17",
                 donator.getGuid().toString(),
                 emptyAccount.getGuid().toString()), MoneyTransfer.class);
-        Assert.assertTrue(mt.isTransferSuccessful());
+        Assert.assertTrue(mt.getMessage().isTransferSuccessful());
 
-        Account firstAccount = makeRequest(String.format("/account/%s", emptyAccount.getGuid().toString()), Account.class);
+        StatusMessage<Account> firstAccountMessage = makeRequest(String.format("/account/%s",
+                emptyAccount.getGuid().toString()), Account.class);
+        Account firstAccount = firstAccountMessage.getMessage();
         Assert.assertEquals(MoneyTest.getDecimal("2.17"), firstAccount.getBalance().getAmount());
 
-        Account secondAccount = makeRequest(String.format("/account/%s", donator.getGuid().toString()), Account.class);
+        StatusMessage<Account> secondAccountMessage = makeRequest(String.format("/account/%s",
+                donator.getGuid().toString()), Account.class);
+        Account secondAccount = secondAccountMessage.getMessage();
         Assert.assertEquals(MoneyTest.getDecimal("1.99"), secondAccount.getBalance().getAmount());
     }
 
-    public <T> T makeRequest(String path, Class<T> cl) {
+    @Test
+    public void testNotFound() {
+        StatusMessage<String> msg = makeRequest("/nonexistent", String.class, true);
+        Assert.assertEquals(404, msg.getStatus());
+    }
+
+    @Data
+    public class StatusMessage<T> {
+        int status;
+        T message;
+    }
+
+    private <T> StatusMessage<T> makeRequest(String path, Class<T> cl) {
+        return makeRequest(path, cl, false);
+    }
+
+    private <T> StatusMessage<T> makeRequest(String path, Class<T> cl, boolean getErrorStream) {
         try {
             URL url = new URL("http://localhost:3000" + path);
             HttpURLConnection con = (HttpURLConnection) url.openConnection();
             con.setRequestMethod("GET");
+            int status = con.getResponseCode();
+            String body;
 
-            String body = IOUtils.toString(con.getInputStream());
+            if (getErrorStream) {
+                body = IOUtils.toString(con.getErrorStream());
+            } else {
+                body = IOUtils.toString(con.getInputStream());
+            }
             con.disconnect();
 
-            return new Gson().fromJson(body, cl);
+            StatusMessage<T> msg = new StatusMessage<>();
+            msg.setStatus(status);
+
+            if (cl.equals(String.class))
+                msg.setMessage(cl.cast(body));
+            else
+                msg.setMessage(new Gson().fromJson(body, cl));
+            return msg;
         } catch (IOException e) {
             return null;
         }

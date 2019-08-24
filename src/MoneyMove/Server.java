@@ -10,7 +10,7 @@ public class Server {
         new Server().establishRoutes();
     }
 
-    void establishRoutes() {
+    private void establishRoutes() {
         BasicConfigurator.configure();
         Gson gson = new Gson();
         Accounts accounts = new Accounts();
@@ -21,11 +21,9 @@ public class Server {
         get("/create-account/:amount/:currency", (req, res) -> Account.createAccount(req, res, accounts), gson::toJson);
         get("/create-account/:currency", (req, res) -> Account.createAccount(req, res, accounts), gson::toJson);
         get("/transfer/:from/:to/:amount", (req, res) -> MoneyTransfer.transfer(req, res, accounts), gson::toJson);
-
         notFound((req, res) -> {
             res.type("application/json");
-            return "{\"status\":404,\"message\":\"Page not found.\"}";
+            return "{\"message\":\"Custom 404\"}";
         });
     }
-
 }
